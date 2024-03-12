@@ -32,7 +32,7 @@ void setup() {
   TCCR1B |= bit (CS10)    ;  // Start clock. Prescaler of 1. # Page 157 #
 
   // Initialize timer 3 at 40.2 Khz. Timers 3, 4, 5 are identical to timer 1
-  TCCR3B  = 0             ;  // Reset control registers
+  TCCR3A  = 0             ;  // Reset control registers
   TCCR3B  = 0             ;
   TCNT3   = 0             ;  // Reset counter
   
@@ -53,6 +53,7 @@ ISR (TIMER1_COMPA_vect)
   // Using direct port manipulation. Takes 2 clock cycles as opposed to ~50 from digitalWrite
   PORTE ^= 0b00010000 ;
 }
+
 
 ISR (TIMER3_COMPA_vect)
 {
