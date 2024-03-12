@@ -21,23 +21,23 @@ void setup() {
   // 16 MHz clock (125 ns per 2 ticks / full clock cycle). Count up to 200 for 40 kHz. Interrupt on compare match.
   noInterrupts()          ;  // Disable all interrupts
   
-  // Initialize timer 1 at 38 Khz
+  // Initialize timer 1 at 39.8 Khz
   TCCR1A  = 0             ;  // Reset control registers
   TCCR1B  = 0             ;
   TCNT1   = 0             ;  // Reset counter
   
-  TCCR1A |= bit (WGM12)   ;  // CTC mode. # Page 145 #
-  OCR1A   = 198           ;  // Count up to 199 (zero relative). # Page 159 #
+  TCCR1B |= bit (WGM12)   ;  // CTC mode. # Page 145 #
+  OCR1A   = 200           ;  // Count up to 199 (zero relative). # Page 159 #
   TIMSK1 |= bit (OCIE1A)  ;  // Interrupt on Timer 1 compare match. # Page 161 #
   TCCR1B |= bit (CS10)    ;  // Start clock. Prescaler of 1. # Page 157 #
 
-  // Initialize timer 3 at 42 Khz. Timers 3, 4, 5 are identical to timer 1
-  TCCR3A  = 0             ;  // Reset control registers
+  // Initialize timer 3 at 40.2 Khz. Timers 3, 4, 5 are identical to timer 1
+  TCCR3B  = 0             ;  // Reset control registers
   TCCR3B  = 0             ;
   TCNT3   = 0             ;  // Reset counter
   
-  TCCR3A |= bit (WGM12)   ;  // CTC mode. # Page 145 #
-  OCR3A   = 200           ;  // Count up to 201 (zero relative). # Page 159 #
+  TCCR3B |= bit (WGM32)   ;  // CTC mode. # Page 145 #
+  OCR3A   = 198           ;  // Count up to 201 (zero relative). # Page 159 #
   TIMSK3 |= bit (OCIE3A)  ;  // Interrupt on Timer 1 compare match. # Page 161 #
   TCCR3B |= bit (CS30)    ;  // Start clock. Prescaler of 1. # Page 157 #
   
