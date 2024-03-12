@@ -3,8 +3,8 @@
 byte pattern = 0x00;
 
 void setup() {
-  // Generate signal of 40khz in pin 2
-  DDRE = 0b00010000 ;  // Set as output port
+  // Generate signals in digital pins 2 and 3
+  DDRE = 0b00110000 ;  // Set as output port
   PORTE = pattern ;  // Set as low signal
   
   // disable everything that we do not need
@@ -50,9 +50,14 @@ void setup() {
 ISR (TIMER1_COMPA_vect)
 {
   // Invert signal on pin 2
-  pattern ^= 0b00010000 ;
-  PORTE = pattern ;
+  // Using direct port manipulation. Takes 2 clock cycles as opposed to ~50 from digitalWrite
+  PORTE ^= 0b00010000 ;
 }
 
+ISR (TIMER3_COMPA_vect)
+{
+  // Invert signal on pin 3
+  PORTE ^= 0b00100000 ;
+}
 
 void loop() { }
