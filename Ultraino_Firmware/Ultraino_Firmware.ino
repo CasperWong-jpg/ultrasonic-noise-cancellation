@@ -1,10 +1,13 @@
 #include <avr/power.h>
+#define CLOCK_FREQ (16000000UL)
 
-unsigned long flag = 0;
+unsigned long bottom_freq = 40000 ;
+unsigned long top_freq = 40000 ;
 
 void setup() {
   /// TODO: Create hash table that maps each port to corresponding MOLEX output
   /// TODO: To simplify below code, just make all ports (except E) low outputs. Need mapping for IRQ
+  /// TODO: Pins 18 - 21 do not output square wave. Unsure why
   
   // Set top 4 MOLEXs as output. This includes everything but pins 0 (rx), 1 (tx), 2-3 (sync), 5 & 14 (empty)
   DDRB = 0xF0 ;  // 4 pins
@@ -39,23 +42,25 @@ void setup() {
   // 16 MHz clock (125 ns per 2 ticks / full clock cycle). Count up to 200 for 40 kHz. Interrupt on compare match.
   noInterrupts()          ;  // Disable all interrupts
   
-  // Initialize timer 1 at 40 Khz
+  // Initialize timer 1 at bottom_freq
   TCCR1A  = 0             ;  // Reset control registers
   TCCR1B  = 0             ;
   TCNT1   = 0             ;  // Reset counter
   
   TCCR1B |= bit (WGM12)   ;  // CTC mode. # Page 145 #
-  OCR1A   = 199           ;  // Count up to 200 (zero relative). # Page 159 #
+  unsigned int count1 = CLOCK_FREQ / (2 * bottom_freq) ;
+  OCR1A   = count1 - 1    ;  // Zero relative counting. # Page 159 #
   TIMSK1 |= bit (OCIE1A)  ;  // Interrupt on Timer 1 compare match. # Page 161 #
   TCCR1B |= bit (CS10)    ;  // Start clock. Prescaler of 1. # Page 157 #
 
-  // Initialize timer 3 at 20 Khz. Timers 3, 4, 5 are identical to timer 1
+  // Initialize timer 3 at top_freq. Timers 3, 4, 5 are identical to timer 1
   TCCR3A  = 0             ;  // Reset control registers
   TCCR3B  = 0             ;
   TCNT3   = 0             ;  // Reset counter
   
   TCCR3B |= bit (WGM32)   ;  // CTC mode. # Page 145 #
-  OCR3A   = 399           ;  // Count up to 400 (zero relative). # Page 159 #
+  unsigned int count3 = CLOCK_FREQ / (2 * top_freq) ;
+  OCR3A   = count3 - 1    ;  // Zero relative counting. # Page 159 #
   TIMSK3 |= bit (OCIE3A)  ;  // Interrupt on Timer 1 compare match. # Page 161 #
   TCCR3B |= bit (CS30)    ;  // Start clock. Prescaler of 1. # Page 157 #
   
@@ -78,7 +83,6 @@ ISR (TIMER1_COMPA_vect)
 
 ISR (TIMER3_COMPA_vect)
 {
-  flag++ ;
   // Invert signal on top pins
   PORTB ^= 0xF0 ;  // 4 pins
   PORTD ^= 0x0F ;  // 4 pins
