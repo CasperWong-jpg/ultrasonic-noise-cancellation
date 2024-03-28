@@ -20,12 +20,15 @@ t = np.linspace(0, duration, int(sampling_freq * duration))
 
 # Generate the audible signal
 audible_signal = np.sin(2 * np.pi * audible_freq * t)
+# Discard negative baseband of signal
+hilbert_signal = np.imag(signal.hilbert(audible_signal))
 
 # Generate the carrier signal (40 kHz)
-carrier_signal = np.sin(2 * np.pi * carrier_freq * t)
+carrier_sine = np.sin(2 * np.pi * carrier_freq * t)
+carrier_cosine = np.cos(2 * np.pi * carrier_freq * t)
 
 # Modulate the carrier signal with the modulating signal
-modulated_signal = carrier_signal * audible_signal  # TODO: Add carrier frequency for audible sound
+modulated_signal = audible_signal * carrier_cosine - hilbert_signal * carrier_sine  # TODO: Add carrier frequency for audible sound
 
 # Normalize the modulated signal to the range [-1, 1]
 modulated_signal /= np.max(np.abs(modulated_signal))
